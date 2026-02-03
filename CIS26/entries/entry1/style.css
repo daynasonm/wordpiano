@@ -135,7 +135,6 @@ html, body {
 .whiteKey.pressed[data-octave="3"] { background: #F316B0; }
 
 
-
 /* Black keys (visual only) */
 .blackKey {
   position: absolute;
@@ -147,3 +146,16 @@ html, body {
   transform: translateX(-50%);
   pointer-events: none;
 }
+
+/*cursor*/
+body, #stage, #piano { cursor: none; }
+
+#pepperCursor{
+  position: fixed;
+  left: 0; top: 0;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 999999;
+}
+
