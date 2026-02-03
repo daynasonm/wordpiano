@@ -1,4 +1,3 @@
-/* 1) FONT (edit filename if needed) */
 @font-face {
   font-family: "Lyon";
   src: url("./CIS26/Lyon.woff2") format("woff2");
@@ -7,13 +6,11 @@
 }
 
 :root {
-  --bg: #e9e9e9;
   --ink: #000;
+  --stage-min-h: 520px;
+  --piano-h: 260px;
   --box-pad-y: 8px;
   --box-pad-x: 14px;
-
-  --piano-h: 280px;
-  --stage-min-h: 430px;
 }
 
 * { box-sizing: border-box; }
@@ -38,17 +35,17 @@ html, body {
 #stage {
   position: relative;
   min-height: var(--stage-min-h);
-  background: var(--bg);
-  border-bottom: 2px solid #000;
+  background: #fff;
+  border-bottom: 1px solid #000;
   overflow: hidden;
 }
 
-/* bank + active share same coordinate system */
-#bank, #activeLayer {
+#activeLayer {
   position: absolute;
   inset: 0;
 }
 
+/* Word boxes (only appear after presses) */
 .wordBox {
   position: absolute;
   display: inline-flex;
@@ -61,88 +58,92 @@ html, body {
   line-height: 1;
   font-size: 28px;
 
-  /* center on its left coordinate */
-  transform: translateX(-50%);
-  user-select: none;
   white-space: nowrap;
+  user-select: none;
+
+  /* we animate opacity + a tiny y-slide */
+  opacity: 0;
+  transform: translate(-50%, 8px);
+  transition: opacity 260ms ease, transform 260ms ease, filter 450ms ease;
 }
 
-/* bank boxes are “static collage” */
-.wordBox.bank {
+.wordBox.show {
   opacity: 1;
-}
-
-/* active boxes appear above and dissolve */
-.wordBox.active {
-  z-index: 999;
+  transform: translate(-50%, 0);
 }
 
 .wordBox.fadeOut {
   opacity: 0;
   filter: blur(1px);
-  transition: opacity 450ms ease, filter 450ms ease;
 }
 
 /* =========================
    PIANO (bottom)
 ========================= */
+/* PIANO (bottom) — full width, no padding */
 #piano {
   height: var(--piano-h);
-  padding: 18px 18px 22px;
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
   background: #fff;
+  padding: 0;          /* ✅ edge-to-edge */
+  width: 100vw;        /* ✅ match screen width */
 }
 
-.octave {
+/* ONE long keyboard — full width */
+.keyboard {
   position: relative;
-  border: 2px solid #000;
   height: 100%;
+  width: 100%;
   display: grid;
-  grid-template-rows: 1fr auto;
-}
+  grid-template-columns: repeat(24, 1fr);
+  overflow: hidden;
 
-.keys {
-  position: relative;
-  display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  height: calc(var(--piano-h) - 70px);
+  /* thin outer boundary (not thick box) */
+  border-top: 1px solid #000;
+  border-bottom: 1px solid #000;
+  border-left: 1px solid #000;
+  border-right: 1px solid #000;
 }
 
 .whiteKey {
   position: relative;
-  border-right: 2px solid #000;
   background: #fff;
-  box-shadow: 0 8px 0 #000;
+
+  /* ✅ thin dividers */
+  border-right: 2px solid #000;
+
+  /* optional: remove chunky “3D” feel */
+  box-shadow: none;
+
   transform: translateY(0);
-  transition: transform 60ms linear, box-shadow 60ms linear;
+  transition: transform 60ms linear;
 }
 
 .whiteKey:last-child {
   border-right: none;
 }
 
+/* pressed effect (shape only — color handled per octave below) */
 .whiteKey.pressed {
-  transform: translateY(5px);
-  box-shadow: 0 3px 0 #000;
+  transform: translateY(2px);
+  height: calc(100% + 2px);
+  margin-top: -2px;          /* prevents the black gap */
+  box-shadow: 0 1px 0 #000;
 }
+/* octave-specific pressed colors */
+.whiteKey.pressed[data-octave="1"] { background: #0C8CE9; }
+.whiteKey.pressed[data-octave="2"] { background: #F1ED4C; }
+.whiteKey.pressed[data-octave="3"] { background: #F316B0; }
+
+
 
 /* Black keys (visual only) */
 .blackKey {
   position: absolute;
   top: 0;
   height: 58%;
-  width: 7%;
+  width: calc(100% / 24 * 0.55);
   background: #000;
   z-index: 10;
   transform: translateX(-50%);
-}
-
-/* simple octave label */
-.octLabel {
-  border-top: 2px solid #000;
-  padding: 10px 0;
-  text-align: center;
-  font-size: 26px;
+  pointer-events: none;
 }
