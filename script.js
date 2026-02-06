@@ -258,22 +258,3 @@ function isPunctuation(k) {
 function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
-/* =========================
-   Cursor
-========================= */
-
-const pepperCursor = document.getElementById("pepperCursor");
-let isPepper = true; // starts as 🌶️
-
-window.addEventListener("mousemove", (e) => {
-  if (!pepperCursor) return;
-  pepperCursor.style.left = `${e.clientX}px`;
-  pepperCursor.style.top = `${e.clientY}px`;
-});
-
-window.addEventListener("click", () => {
-  if (!pepperCursor) return;
-  isPepper = !isPepper;
-  pepperCursor.textContent = isPepper ? "🌶️" : "⚡️";
-});
