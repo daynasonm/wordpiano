@@ -4,22 +4,47 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Word Piano</title>
-  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
-  <main class="app">
-    <!-- TOP: empty at start; words appear only after key presses -->
-    <section id="stage">
+  <!-- top-right info button (shown after Play) -->
+  <button id="infoBtn" type="button" aria-label="Instructions">
+    <span class="infoGlyph" aria-hidden="true">i</span>
+  </button>
+
+  <!-- START overlay -->
+  <div id="startOverlay" class="overlay overlay--show" aria-hidden="false">
+    <div class="startCard">
+      <h1 class="title">Aminé - Spice Girl<br>on Word Piano</h1>
+      <button id="playBtn" class="playBtn" type="button" aria-label="Play">
+        <span class="playIcon" aria-hidden="true">▶</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- HELP overlay (start hidden) -->
+  <section id="helpOverlay" class="overlay" aria-hidden="true">
+    <div class="helpPanel" role="dialog" aria-modal="true" aria-label="Instructions">
+      <button id="closeHelpBtn" class="closeBtn" type="button" aria-label="Close">×</button>
+      <img class="helpImg" src="instructions-box.png" alt="Word Piano key guide" />
+    </div>
+  </section>
+
+  <!-- APP layout -->
+  <div class="app" id="app">
+    <div id="stage">
       <div id="activeLayer"></div>
-    </section>
+    </div>
 
-    <!-- BOTTOM: continuous piano -->
-    <section id="piano" aria-label="Piano"></section>
-  </main>
-    <!--cursor-->
-    <div id="pepperCursor" aria-hidden="true">🌶️</div>
+   <!-- Emoji rain layer (shown when "spice" → "girl" happens) -->
+   <div id="emojiRain" aria-hidden="true"></div>
 
-  <script src="./script.js"></script>
+    <div id="piano" aria-label="Piano">
+      <div class="keyboard" id="keyboard"></div>
+    </div>
+  </div>
+
+  <script src="script.js" defer></script>
 </body>
 </html>

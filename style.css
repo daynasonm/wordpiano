@@ -1,3 +1,6 @@
+/* =========================
+   Font (Lyon)
+========================= */
 @font-face {
   font-family: "Lyon";
   src: url("./CIS26/Lyon.woff2") format("woff2");
@@ -5,157 +8,304 @@
   font-style: normal;
 }
 
+/* =========================
+   Vars
+========================= */
 :root {
-  --ink: #000;
-  --stage-min-h: 520px;
-  --piano-h: 260px;
-  --box-pad-y: 8px;
-  --box-pad-x: 14px;
-}
-
-* { box-sizing: border-box; }
-
-html, body {
-  margin: 0;
-  height: 100%;
-  font-family: "Lyon", serif;
-  color: var(--ink);
-  background: #fff;
-}
-
-.app {
-  min-height: 100vh;
-  display: grid;
-  grid-template-rows: 1fr auto;
+  --stroke: 2px;
+  --piano-h: clamp(240px, 30vh, 340px); /* keeps piano higher on tall screens */
+  --press-depth: 2px;
 }
 
 /* =========================
-   STAGE (top)
+   Base
 ========================= */
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: "Lyon", serif;
+  background: #fff;
+  overflow: hidden;
+}
+
+/* =========================
+   Layout
+========================= */
+.app {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 1fr var(--piano-h);
+}
+
 #stage {
   position: relative;
-  min-height: var(--stage-min-h);
-  background: #fff;
-  border-bottom: 1px solid #000;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
 
 #activeLayer {
   position: absolute;
   inset: 0;
+  margin: 0;
+  padding: 0;
 }
 
-/* Word boxes (only appear after presses) */
+#piano {
+  position: relative;
+  border-top: var(--stroke) solid #000;
+  border-bottom: var(--stroke) solid #000;
+  background: #fff;
+}
+
+/* =========================
+   Word boxes
+========================= */
 .wordBox {
   position: absolute;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  background: #fff;
-  border: 2px solid #000;
-  padding: var(--box-pad-y) var(--box-pad-x);
-  line-height: 1;
-  font-size: 28px;
-
-  white-space: nowrap;
-  user-select: none;
-
-  /* we animate opacity + a tiny y-slide */
-  opacity: 0;
-  transform: translate(-50%, 8px);
-  transition: opacity 260ms ease, transform 260ms ease, filter 450ms ease;
-}
-
-.wordBox.show {
-  opacity: 1;
   transform: translate(-50%, 0);
+
+  width: 160px;          /* match screenshot look, tweek if needed */
+  height: 44px;
+  display: grid;
+  place-items: center;
+
+  padding: 0;
+  border: 2px solid #000;
+  background: #fff;
+
+  font-size: 26px;
+  line-height: 1;
+  white-space: nowrap;
+
+  opacity: 0;
+  transition: opacity 220ms ease;
 }
+
+.wordBox.show { opacity: 1; }
 
 .wordBox.fadeOut {
   opacity: 0;
   filter: blur(1px);
+  transition: opacity 520ms ease, filter 520ms ease;
+}
+
+/* make sure the i button never gets covered */
+#infoBtn { z-index: 1000; }
+.wordBox { z-index: 10; }
+
+/* =========================
+   Emoji rain ("spice" → "girl")
+========================= */
+#emojiRain{
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 500; /* above word boxes */
+}
+
+.emojiDrop{
+  position: absolute;
+  top: -10vh;
+  left: 50%;
+  transform: translate3d(0, -10vh, 0);
+  will-change: transform;
+  animation: emojiFall var(--dur, 1.6s) linear forwards;
+}
+
+@keyframes emojiFall{
+  from{
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 0.95;
+  }
+  to{
+    transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(360deg);
+    opacity: 1;
+  }
 }
 
 /* =========================
-   PIANO (bottom)
+   Piano keys
 ========================= */
-/* PIANO (bottom) — full width, no padding */
-#piano {
-  height: var(--piano-h);
-  background: #fff;
-  padding: 0;          /* ✅ edge-to-edge */
-  width: 100vw;        /* ✅ match screen width */
-}
-
-/* ONE long keyboard — full width */
 .keyboard {
   position: relative;
   height: 100%;
   width: 100%;
   display: grid;
   grid-template-columns: repeat(24, 1fr);
-  overflow: hidden;
-
-  /* thin outer boundary (not thick box) */
-  border-top: 1px solid #000;
-  border-bottom: 1px solid #000;
-  border-left: 1px solid #000;
-  border-right: 1px solid #000;
 }
 
 .whiteKey {
-  position: relative;
+  appearance: none;
+  border: 0;
   background: #fff;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
 
-  /* ✅ thin dividers */
-  border-right: 2px solid #000;
-
-  /* optional: remove chunky “3D” feel */
-  box-shadow: none;
-
-  transform: translateY(0);
-  transition: transform 60ms linear;
+  border-right: var(--stroke) solid #000;
+  transition: transform 60ms ease, background 60ms ease;
 }
 
-.whiteKey:last-child {
-  border-right: none;
+.whiteKey:first-child {
+  border-left: var(--stroke) solid #000;
 }
 
-/* pressed effect (shape only — color handled per octave below) */
 .whiteKey.pressed {
-  transform: translateY(2px);
-  height: calc(100% + 2px);
-  margin-top: -2px;          /* prevents the black gap */
-  box-shadow: 0 1px 0 #000;
+  transform: translateY(var(--press-depth));
+  height: calc(100% + var(--press-depth));
+  margin-top: calc(var(--press-depth) * -1);
 }
-/* octave-specific pressed colors */
+
 .whiteKey.pressed[data-octave="1"] { background: #0C8CE9; }
 .whiteKey.pressed[data-octave="2"] { background: #F1ED4C; }
 .whiteKey.pressed[data-octave="3"] { background: #F316B0; }
 
-
-/* Black keys (visual only) */
 .blackKey {
   position: absolute;
   top: 0;
-  height: 58%;
-  width: calc(100% / 24 * 0.55);
-  background: #000;
-  z-index: 10;
+  height: 62%;
+  width: calc(100% / 24 * 0.58);
   transform: translateX(-50%);
-  pointer-events: none;
+  background: #000;
+  border: var(--stroke) solid #000;
+  cursor: pointer;
+  z-index: 3;
+  padding: 0;
 }
 
-/*cursor*/
-body, #stage, #piano { cursor: none; }
+.blackKey.pressed[data-octave="1"] { background: #0C8CE9; }
+.blackKey.pressed[data-octave="2"] { background: #F1ED4C; }
+.blackKey.pressed[data-octave="3"] { background: #F316B0; }
 
-#pepperCursor{
+/* =========================
+   Info button (prototype style)
+========================= */
+#infoBtn {
   position: fixed;
-  left: 0; top: 0;
-  transform: translate(-50%, -50%);
-  font-size: 24px;
-  pointer-events: none;
-  z-index: 999999;
+  top: 18px;
+  right: 18px;
+  width: 56px;
+  height: 56px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+
+  display: grid;
+  place-items: center;
+
+  z-index: 999;      /* always above word boxes */
 }
 
+#infoBtn .infoGlyph{
+  font-family: "Lyon", serif;
+  font-size: 28px;
+  line-height: 1;
+  transform: translateY(-1px); /* optical center */
+}
+
+body.started #infoBtn {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* =========================
+   Overlays
+========================= */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(255,255,255,0.72); /* slightly lighter so piano shows */
+  z-index: 100;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 650ms ease; /* slow fade */
+}
+
+.overlay--show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Start card position */
+.startCard {
+  text-align: center;
+  transform: translateY(-130px);
+}
+
+.title {
+  font-weight: 400;
+  font-size: 38px;
+  line-height: 1.15;
+  margin: 0 0 46px 0;
+}
+
+.playBtn {
+  width: 120px;
+  height: 120px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.playIcon {
+  font-size: 92px;
+  line-height: 120px;
+  display: inline-block;
+  transform: translateX(6px);
+  color: #000;
+}
+
+/* =========================
+   Help image modal (matches prototype)
+========================= */
+.helpPanel {
+  position: relative;
+  padding: 0;
+  border: 0;
+  background: transparent;
+
+  /* start slightly higher + invisible */
+  transform: translateY(-90px) scale(0.98);
+  opacity: 0;
+
+  transition: transform 650ms ease, opacity 650ms ease;
+}
+
+/* when overlay is visible, panel animates in */
+.overlay--show .helpPanel {
+  transform: translateY(-70px) scale(1);
+  opacity: 1;
+}
+
+/* scale image DOWN so piano stays visible */
+.helpImg {
+  display: block;
+  width: min(820px, 86vw);
+  max-height: 48vh;
+  height: auto;
+  object-fit: contain;
+}
+
+/* X button pinned to top-right of the image */
+.closeBtn {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 52px;
+  height: 52px;
+  border: 0;
+  background: #000;
+  color: #fff;
+  font-size: 34px;
+  line-height: 52px;
+  cursor: pointer;
+  z-index: 2;
+}
