@@ -322,12 +322,9 @@ body.started #infoBtn {
   .playBtn {
     width: 100px;
     height: 100px;
-  }
-
-  .playIcon {
-    border-top: 32px solid transparent;
-    border-bottom: 32px solid transparent;
-    border-left: 56px solid #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 
