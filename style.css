@@ -29,6 +29,7 @@ body {
   font-family: "Lyon", serif;
   background: #fff;
   overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 button:focus {
@@ -68,6 +69,7 @@ button:focus-visible {
   border-top: var(--stroke) solid #000;
   border-bottom: var(--stroke) solid #000;
   background: #fff;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* =========================
