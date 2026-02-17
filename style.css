@@ -282,6 +282,9 @@ body.started #infoBtn {
 .startCard {
   text-align: center;
   transform: translateY(-130px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .title {
