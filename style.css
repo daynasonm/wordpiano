@@ -29,6 +29,7 @@ body {
   font-family: "Lyon", serif;
   background: #fff;
   overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -45,6 +46,7 @@ button:focus-visible {
 ========================= */
 .app {
   height: 100vh;
+  height: 100dvh;
   display: grid;
   grid-template-rows: 1fr var(--piano-h);
 }
@@ -419,6 +421,7 @@ body.started #infoBtn {
 
   /* make the top area actually fill the space above the piano */
   .app{
+    height: 100dvh !important;
     grid-template-rows: 1fr var(--pianoH) !important;
   }
   #stage{
