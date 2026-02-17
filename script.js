@@ -4,17 +4,17 @@
    0=C,1=D,2=E,3=F,4=G,5=A,6=B,7=C(high)
 ========================= */
 const WORDS = [
-  ["I","when","spice","girl","zig","real","nothin","talk","(hey)","sporty","fine","deceivin’","gotta"],
-  ["infatuat","off","work","spice","girl","weave","ginger","name","my","spice","gril","need","zig"],
+  ["I","world","spice","girl","zig","reason","nothin","talk","(hey)","sporty","fine","deceivin’","gotta"],
+  ["infatuation","off","work","spice","girl","weave","ginger","name","my","spice","girl","need","zig"],
   ["a","freaky","don’t","banana","whole","weave","reason","schemin’","spice","girl","posh","time","align"],
   ["zig","ah","zig","ah","zig","spice","girl","ah","zig","ah","zig","ah","zig","ah","zig"],
-  ["prime","real","posh","so","world","ah","feel","B.S.","in","boujee","pavin’","ways","fuck"],
-  ["down","spice","girl","fine","no","fake","off","feelings","look","mama","forever","world","tryna"],
-  ["reason","hit","I-5","come","Viva","know","boujee","tell","really","spice","girl","go","aligned"],
-  ["wanna","list","(hey)","scary","spice","girl","a","need","like","studyin’","put","fuck","chance"],
+  ["women","real","posh","so","world","ah","feel","B.S.","my","boujee","pavin’","ways","fuck"],
+  ["down","spice","girl","fine","ah","fake","off","infatuation","like","mama","forever","world","nothin'"],
+  ["reason","hit","I-5","come","Viva","B.S.","boujee","masters","really","spice","girl","go","aligned"],
+  ["weave","want","(hey)","scary","spice","girl","a","need","like","studyin’","tell","fuck","always"],
 ];
 
-const ROWS_PER_COL = 13;
+const ROWS_PER_COL = 15;
 const pointers = new Array(8).fill(0);
 
 /* =========================
