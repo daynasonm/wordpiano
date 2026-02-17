@@ -451,10 +451,12 @@ body.started #infoBtn {
     border: 0;
     border-radius: 0;
     background: #fff;
+    color: #000;
     font-family: "Lyon", serif;
     font-size: 22px;
     display: grid;
     place-items: center;
+    -webkit-appearance: none;
   }
   
   #octaveControls button + button{
