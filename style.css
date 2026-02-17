@@ -13,7 +13,7 @@
 ========================= */
 :root {
   --stroke: 2px;
-  --piano-h: clamp(240px, 30vh, 340px); /* keeps piano higher on tall screens */
+  --piano-h: clamp(260px, 32vh, 360px); /* keeps piano higher on tall screens */
   --press-depth: 2px;
 }
 
@@ -31,6 +31,14 @@ body {
   overflow: hidden;
 }
 
+button:focus {
+  outline: none;
+}
+
+button:focus-visible {
+  outline: none;
+}
+
 /* =========================
    Layout
 ========================= */
@@ -44,6 +52,7 @@ body {
   position: relative;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 #activeLayer {
@@ -51,6 +60,7 @@ body {
   inset: 0;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 #piano {
@@ -67,8 +77,8 @@ body {
   position: absolute;
   transform: translate(-50%, 0);
 
-  width: 160px;          /* match screenshot look, tweek if needed */
-  height: 44px;
+  width: 160px;
+  height: var(--word-box-h, 44px);
   display: grid;
   place-items: center;
 
@@ -77,6 +87,7 @@ body {
   background: #fff;
 
   font-size: 26px;
+  font-family: "Lyon", serif;
   line-height: 1;
   white-space: nowrap;
 
@@ -100,7 +111,7 @@ body {
    Emoji rain ("spice" → "girl")
 ========================= */
 #emojiRain{
-  position: absolute;
+  position: fixed;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
@@ -135,7 +146,7 @@ body {
   height: 100%;
   width: 100%;
   display: grid;
-  grid-template-columns: repeat(24, 1fr);
+  grid-template-columns: repeat(21, 1fr);
 }
 
 .whiteKey {
@@ -155,9 +166,9 @@ body {
 }
 
 .whiteKey.pressed {
-  transform: translateY(var(--press-depth));
-  height: calc(100% + var(--press-depth));
-  margin-top: calc(var(--press-depth) * -1);
+  transform: none;
+  height: 100%;
+  margin-top: 0;
 }
 
 .whiteKey.pressed[data-octave="1"] { background: #0C8CE9; }
@@ -172,6 +183,7 @@ body {
   transform: translateX(-50%);
   background: #000;
   border: var(--stroke) solid #000;
+  border-top: none;
   cursor: pointer;
   z-index: 3;
   padding: 0;
@@ -181,6 +193,29 @@ body {
 .blackKey.pressed[data-octave="2"] { background: #F1ED4C; }
 .blackKey.pressed[data-octave="3"] { background: #F316B0; }
 
+/* =========================
+   Emoji Rain
+========================= */
+#emojiRain{
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 500;
+}
+.emojiDrop{
+  position: absolute;
+  top: -10vh;
+  left: 50%;
+  transform: translate3d(0, -10vh, 0);
+  will-change: transform;
+  animation: emojiFall var(--dur, 1.6s) linear forwards;
+}
+@keyframes emojiFall{
+  from{ transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0.95; }
+  to{ transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(360deg); opacity: 1; }
+}
+   
 /* =========================
    Info button (prototype style)
 ========================= */
@@ -198,7 +233,9 @@ body {
   display: grid;
   place-items: center;
 
-  z-index: 999;      /* always above word boxes */
+  z-index: 99;
+  opacity: 0;
+  pointer-events: none;
 }
 
 #infoBtn .infoGlyph{
@@ -211,6 +248,13 @@ body {
 body.started #infoBtn {
   opacity: 1;
   pointer-events: auto;
+}
+
+/* =========================
+   Octave controls (hidden on desktop, only show on mobile after started)
+========================= */
+#octaveControls {
+  display: none !important;
 }
 
 /* =========================
@@ -263,6 +307,27 @@ body.started #infoBtn {
   color: #000;
 }
 
+@media (max-width: 600px) {
+  .startCard {
+    transform: translateY(-140px);
+  }
+
+  .title {
+    font-size: 34px;
+    margin: 0 0 40px 0;
+  }
+
+  .playBtn {
+    width: 100px;
+    height: 100px;
+  }
+
+  .playIcon {
+    font-size: 78px;
+    line-height: 100px;
+  }
+}
+
 /* =========================
    Help image modal (matches prototype)
 ========================= */
@@ -273,7 +338,7 @@ body.started #infoBtn {
   background: transparent;
 
   /* start slightly higher + invisible */
-  transform: translateY(-90px) scale(0.98);
+  transform: translateY(-140px) scale(0.98);
   opacity: 0;
 
   transition: transform 650ms ease, opacity 650ms ease;
@@ -281,7 +346,7 @@ body.started #infoBtn {
 
 /* when overlay is visible, panel animates in */
 .overlay--show .helpPanel {
-  transform: translateY(-70px) scale(1);
+  transform: translateY(-120px) scale(1);
   opacity: 1;
 }
 
@@ -292,6 +357,31 @@ body.started #infoBtn {
   max-height: 48vh;
   height: auto;
   object-fit: contain;
+}
+
+.helpImg--phone {
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .helpImg--desktop {
+    display: none;
+  }
+
+  .helpImg--phone {
+    display: block;
+    width: 70vw;
+    max-height: 40vh;
+  }
+
+  .helpPanel {
+    transform: translateY(-160px) scale(0.98);
+  }
+
+  .overlay--show .helpPanel {
+    transform: translateY(-140px) scale(1);
+  }
+
 }
 
 /* X button pinned to top-right of the image */
@@ -308,4 +398,128 @@ body.started #infoBtn {
   line-height: 52px;
   cursor: pointer;
   z-index: 2;
+}
+
+/* =========================================================
+   FINAL PHONE OVERRIDES (keeps laptop/desktop unchanged)
+   - shows -1/+1 buttons
+   - makes -1/+1 and i the same SQUARE size
+   - forces 1 octave keyboard grid (C–C) styling
+========================================================= */
+@media (max-width: 600px){
+  :root{
+    --pianoH: 320px;
+    --ctl: 52px;
+  }
+
+  /* make the top area actually fill the space above the piano */
+  .app{
+    grid-template-rows: 1fr var(--pianoH) !important;
+  }
+  #stage{
+    height: 100% !important;
+  }
+
+  /* 1 octave (C–B) keyboard - 7 white keys */
+  .keyboard{
+    display: grid !important;
+    grid-template-columns: repeat(7, 1fr) !important;
+    width: 100% !important;
+  }
+  .blackKey{
+    width: calc(100% / 7 * 0.58) !important;
+  }
+
+  /* -1 / +1 octave buttons (SQUARE) */
+  #octaveControls{
+    display: none !important;
+    gap: 0;
+    position: absolute;
+    left: 18px;
+    bottom: 16px;
+    border: 2px solid #000;
+    background: #fff;
+    z-index: 90;
+  }
+
+  #octaveControls button{
+    width: var(--ctl);
+    height: var(--ctl);
+    aspect-ratio: 1 / 1;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    font-family: "Lyon", serif;
+    font-size: 22px;
+    display: grid;
+    place-items: center;
+  }
+  
+  #octaveControls button + button{
+    border-left: 2px solid #000;
+  }
+  
+/* Octave button states */
+  body.started #octaveControls{
+    display: flex !important;
+  }
+  
+  #octaveControls button{
+    transition: background-color 0.1s ease;
+    background: #fff;
+  }
+  
+/* PRESSED STATES - color shows destination octave */
+
+  /* From yellow (2) pressing -1 → going to blue (1) */
+  body.started.octave-2 #octDown:active,
+  body.started.octave-2 #octDown.btn-pressed{
+    background: #3BACFF;
+  }
+
+  /* From blue (1) pressing +1 → going to yellow (2) */
+  body.started.octave-1 #octUp:active,
+  body.started.octave-1 #octUp.btn-pressed{
+    background: #FFDD00;
+  }
+
+  /* From yellow (2) pressing +1 → going to pink (3) */
+  body.started.octave-2 #octUp:active,
+  body.started.octave-2 #octUp.btn-pressed{
+    background: #FF56CF;
+  }
+
+  /* From pink (3) pressing -1 → going to yellow (2) */
+  body.started.octave-3 #octDown:active,
+  body.started.octave-3 #octDown.btn-pressed{
+    background: #FFDD00;
+  }
+  
+  /* info button (SQUARE, same size as octave buttons) */
+  #infoBtn{
+    position: fixed;
+    top: 18px;
+    right: 18px;
+    width: var(--ctl) !important;
+    height: var(--ctl) !important;
+    min-width: var(--ctl);
+    min-height: var(--ctl);
+    aspect-ratio: 1 / 1;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    display: grid;
+    place-items: center;
+  }
+
+  #infoBtn .infoGlyph{
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  .wordBox{
+    width: 150px;
+    font-size: 24px;
+  }
 }

@@ -27,20 +27,28 @@
   <section id="helpOverlay" class="overlay" aria-hidden="true">
     <div class="helpPanel" role="dialog" aria-modal="true" aria-label="Instructions">
       <button id="closeHelpBtn" class="closeBtn" type="button" aria-label="Close">×</button>
-      <img class="helpImg" src="instructions-box.png" alt="Word Piano key guide" />
+      <img class="helpImg helpImg--desktop" src="instructions-box.png" alt="Word Piano key guide" />
+      <img class="helpImg helpImg--phone" src="instructions-box-phone.png" alt="Word Piano key guide" />
     </div>
   </section>
-
-  <!-- APP layout -->
+  
+<!-- APP layout -->
   <div class="app" id="app">
     <div id="stage">
       <div id="activeLayer"></div>
+
+      <!-- Emoji rain layer (covers the word area) -->
+      <div id="emojiRain" aria-hidden="true"></div>
+
+      <!-- Mobile octave controls (shown via media query) -->
+      <div id="octaveControls" class="octaveControls" aria-label="Octave controls">
+        <button id="octDown" type="button" aria-label="Octave down">-1</button>
+        <button id="octUp" type="button" aria-label="Octave up">+1</button>
+      </div>
     </div>
 
-   <!-- Emoji rain layer (shown when "spice" → "girl" happens) -->
-   <div id="emojiRain" aria-hidden="true"></div>
-
-    <div id="piano" aria-label="Piano">
+    <!-- Piano keyboard -->
+    <div id="piano">
       <div class="keyboard" id="keyboard"></div>
     </div>
   </div>
