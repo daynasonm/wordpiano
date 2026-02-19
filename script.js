@@ -17,6 +17,38 @@ const WORDS = [
 const ROWS_PER_COL = 15;
 const pointers = new Array(8).fill(0);
 
+// Note-to-audio mapping (12 chromatic notes)
+const NOTE_AUDIO = {
+  'C': 'ineedaspicegirl.mp3',
+  'C#': 'hey.mp3',
+  'D': 'zigahzigah.mp3',
+  'D#': 'bs.mp3',
+  'E': 'infatuation.mp3',
+  'F': 'sheonlyeatbananas.mp3',
+  'F#': 'zoom.mp3',
+  'G': 'herworldtomyworld.mp3',
+  'G#': 'yeahyeah.mp3',
+  'A': 'superthievin.mp3',
+  'A#': 'spicegirl.mp3',
+  'B': 'isthisrealorfake.mp3'
+};
+
+// Note-to-words mapping (syllables/words per note)
+const NOTE_WORDS = {
+  'C': ["I", "need", "a", "spice", "girl"],
+  'C#': ["hey!"],
+  'D': ["zig", "ah", "zig", "ah"],
+  'D#': ["B.S."],
+  'E': ["infatuation"],
+  'F': ["she", "only", "eat", "bananas"],
+  'F#': ["(zoom)"],
+  'G': ["her", "world", "to", "my", "world"],
+  'G#': ["yeah", "yeah"],
+  'A': ["super", "thievin'"],
+  'A#': ["spice", "girl"],
+  'B': ["is", "this", "real", "or", "fake"]
+};
+
 /* =========================
    Octaves
 ========================= */
@@ -44,25 +76,22 @@ else if (mobileMQ.addListener) mobileMQ.addListener(onMQChange); // older Safari
    baseOctave is shifted by Z / X
 ========================= */
 const NOTE_KEYS = {
-  a: { kind: "white", noteIndex: 0, octaveOffset: 0 }, // C
-  s: { kind: "white", noteIndex: 1, octaveOffset: 0 }, // D
-  d: { kind: "white", noteIndex: 2, octaveOffset: 0 }, // E
-  f: { kind: "white", noteIndex: 3, octaveOffset: 0 }, // F
-  g: { kind: "white", noteIndex: 4, octaveOffset: 0 }, // G
-  h: { kind: "white", noteIndex: 5, octaveOffset: 0 }, // A
-  j: { kind: "white", noteIndex: 6, octaveOffset: 0 }, // B
-  k: { kind: "white", noteIndex: 7, octaveOffset: 0 }, // C (high)
-
-  l: { kind: "white", noteIndex: 1, octaveOffset: 1 }, // D (next octave)
-
-  w: { kind: "black", acc: "cs", wordColNoteIndex: 0, octaveOffset: 0 },
-  e: { kind: "black", acc: "ds", wordColNoteIndex: 1, octaveOffset: 0 },
-  t: { kind: "black", acc: "fs", wordColNoteIndex: 3, octaveOffset: 0 },
-  y: { kind: "black", acc: "gs", wordColNoteIndex: 4, octaveOffset: 0 },
-  u: { kind: "black", acc: "as", wordColNoteIndex: 5, octaveOffset: 0 },
-
-  o: { kind: "black", acc: "cs", wordColNoteIndex: 0, octaveOffset: 1 },
-  p: { kind: "black", acc: "ds", wordColNoteIndex: 1, octaveOffset: 1 },
+  a: { kind: "white", noteIndex: 0, octaveOffset: 0, note: 'C' },
+  w: { kind: "black", noteIndex: 0, octaveOffset: 0, note: 'C#' },
+  s: { kind: "white", noteIndex: 1, octaveOffset: 0, note: 'D' },
+  e: { kind: "black", noteIndex: 1, octaveOffset: 0, note: 'D#' },
+  d: { kind: "white", noteIndex: 2, octaveOffset: 0, note: 'E' },
+  f: { kind: "white", noteIndex: 3, octaveOffset: 0, note: 'F' },
+  t: { kind: "black", noteIndex: 3, octaveOffset: 0, note: 'F#' },
+  g: { kind: "white", noteIndex: 4, octaveOffset: 0, note: 'G' },
+  y: { kind: "black", noteIndex: 4, octaveOffset: 0, note: 'G#' },
+  h: { kind: "white", noteIndex: 5, octaveOffset: 0, note: 'A' },
+  u: { kind: "black", noteIndex: 5, octaveOffset: 0, note: 'A#' },
+  j: { kind: "white", noteIndex: 6, octaveOffset: 0, note: 'B' },
+  k: { kind: "white", noteIndex: 7, octaveOffset: 1, note: 'C' },
+  o: { kind: "black", noteIndex: 7, octaveOffset: 1, note: 'C#' },
+  l: { kind: "white", noteIndex: 8, octaveOffset: 1, note: 'D' },
+  p: { kind: "black", noteIndex: 8, octaveOffset: 1, note: 'D#' },
 };
 
 /* =========================
@@ -287,7 +316,7 @@ window.addEventListener("keydown", (e) => {
 
   held.set(k, pressInfo);
   pressVisual(pressInfo);
-  triggerWordAndAudio(pressInfo.wordColNoteIndex);
+  triggerWordAndAudio(pressInfo.wordColNoteIndex, map.note, octave);
 });
 
 window.addEventListener("keyup", (e) => {
@@ -381,7 +410,11 @@ function attachPointerKey(el, info) {
     el.setPointerCapture?.(e.pointerId);
 
     pressVisual(info);
-    triggerWordAndAudio(info.wordColNoteIndex);
+    // Need to look up the note from wordColNoteIndex
+    const noteKey = Object.values(NOTE_KEYS).find(k => k.noteIndex === info.wordColNoteIndex && k.octaveOffset === 0);
+    if (noteKey) {
+      triggerWordAndAudio(info.wordColNoteIndex, noteKey.note, info.octave);
+    }
   });
 
   el.addEventListener("pointerup", () => {
@@ -459,19 +492,28 @@ function nextWordForColumn(noteIndex) {
   return { word: "", rowNum: 1, colNum };
 }
 
-function triggerWordAndAudio(wordColNoteIndex) {
-  const { word, rowNum, colNum } = nextWordForColumn(wordColNoteIndex);
-  if (!word) return;
-
-  onWordTriggered(word);
-  spawnWord(colNum, word);
-  playAudio(colNum, rowNum);
+function triggerWordAndAudio(wordColNoteIndex, note, octave) {
+  if (!note) return;
+  
+  const words = NOTE_WORDS[note];
+  if (!words) return;
+  
+  // Spawn all textboxes for this note
+  words.forEach((word, index) => {
+    setTimeout(() => {
+      onWordTriggered(word);
+      spawnWord(word, wordColNoteIndex, octave);
+    }, index * 120);
+  });
+  
+  // Play audio
+  playAudio(note, octave);
 }
 
-function spawnWord(colNum, word) {
+function spawnWord(word, noteIndex, octave) {
   if (!stage || !activeLayer) return;
 
-  const col = clamp(colNum - 1, 0, 7);
+  const col = clamp(noteIndex, 0, 7);
   const maxRows = Math.max(1, Math.floor(stage.clientHeight / STACK_STEP));
   const rowIndex = colHeights[col] % maxRows;
   colHeights[col] += 1;
@@ -511,11 +553,19 @@ function spawnWord(colNum, word) {
   }, 6000);
 }
 
-function playAudio(colNum, rowNum) {
+function playAudio(note, octave) {
   if (isMuted) return;
-  const src = `./audio/col${colNum}_row${rowNum}.mp3`;
+  
+  const filename = NOTE_AUDIO[note];
+  if (!filename) return;
+  
+  const src = `./audio/${filename}`;
   const audio = new Audio(src);
-  audio.currentTime = 0;
+  
+  // Pitch shift based on octave (octave 2 = normal pitch)
+  const octaveOffset = octave - 2;
+  audio.playbackRate = Math.pow(2, octaveOffset);
+  
   audio.play().catch(() => {});
 }
 
