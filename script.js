@@ -365,11 +365,11 @@ function buildPiano() {
   }
 
   const blackSpecs = [
-    { after: 0, acc: "cs", wordColNoteIndex: 0 },
-    { after: 1, acc: "ds", wordColNoteIndex: 1 },
-    { after: 3, acc: "fs", wordColNoteIndex: 3 },
-    { after: 4, acc: "gs", wordColNoteIndex: 4 },
-    { after: 5, acc: "as", wordColNoteIndex: 5 },
+    { after: 0, acc: "cs", wordColNoteIndex: 0, note: 'C#' },
+    { after: 1, acc: "ds", wordColNoteIndex: 1, note: 'D#' },
+    { after: 3, acc: "fs", wordColNoteIndex: 3, note: 'F#' },
+    { after: 4, acc: "gs", wordColNoteIndex: 4, note: 'G#' },
+    { after: 5, acc: "as", wordColNoteIndex: 5, note: 'A#' },
   ];
 
   for (let o = 0; o < octavesToBuild; o++) {
@@ -390,6 +390,7 @@ function buildPiano() {
         octave,
         acc: b.acc,
         wordColNoteIndex: b.wordColNoteIndex,
+        note: b.note,
       });
 
       keyboard.appendChild(bk);
@@ -410,10 +411,18 @@ function attachPointerKey(el, info) {
     el.setPointerCapture?.(e.pointerId);
 
     pressVisual(info);
-    // Need to look up the note from wordColNoteIndex
-    const noteKey = Object.values(NOTE_KEYS).find(k => k.noteIndex === info.wordColNoteIndex && k.octaveOffset === 0);
-    if (noteKey) {
-      triggerWordAndAudio(info.wordColNoteIndex, noteKey.note, info.octave);
+    
+    // Get the note - for black keys it's already in info, for white keys look it up
+    let note = info.note;
+    if (!note && info.kind === "white") {
+      const noteKey = Object.values(NOTE_KEYS).find(k => 
+        k.kind === "white" && k.noteIndex === info.wordColNoteIndex && k.octaveOffset === 0
+      );
+      note = noteKey?.note;
+    }
+    
+    if (note) {
+      triggerWordAndAudio(info.wordColNoteIndex, note, info.octave);
     }
   });
 
@@ -562,9 +571,10 @@ function playAudio(note, octave) {
   const src = `./audio/${filename}`;
   const audio = new Audio(src);
   
-  // Pitch shift based on octave (octave 2 = normal pitch)
-  const octaveOffset = octave - 2;
-  audio.playbackRate = Math.pow(2, octaveOffset);
+  // Pitch shift by ±5 semitones based on octave (octave 2 = normal pitch)
+  // Octave 1 (blue) = -5 semitones, Octave 2 (yellow) = normal, Octave 3 (pink) = +5 semitones
+  const semitoneOffset = (octave - 2) * 5; // -5, 0, or +5
+  audio.playbackRate = Math.pow(2, semitoneOffset / 12);
   
   audio.play().catch(() => {});
 }
