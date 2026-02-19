@@ -258,7 +258,7 @@ button:focus-visible {
   font-size: 28px;
   line-height: 1;
   transform: translateY(-1px); /* optical center */
-}
+} 
 
 body.started #infoBtn {
   opacity: 1;
@@ -412,7 +412,7 @@ body.started #infoBtn {
   border: 0;
   background: #000;
   color: #fff;
-  font-size: 34px;
+  font-size: 45px;
   font-weight: 200;
   font-family: "Lyon", serif;
   cursor: pointer;

@@ -573,7 +573,7 @@ function playAudio(note, octave) {
   
   // Pitch shift by ±5 semitones based on octave (octave 2 = normal pitch)
   // Octave 1 (blue) = -5 semitones, Octave 2 (yellow) = normal, Octave 3 (pink) = +5 semitones
-  const semitoneOffset = (octave - 2) * 5; // -5, 0, or +5
+  const semitoneOffset = (octave - 3) * 5; // -5, 0, or +5
   audio.playbackRate = Math.pow(2, semitoneOffset / 12);
   
   audio.play().catch(() => {});
